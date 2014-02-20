@@ -5,6 +5,8 @@ nuxeo-rest-api-client-scripts
 
 Configure `.setenv` file first. 
 
+## Parameters
+
 - document path
 
 ```bash
