@@ -14,7 +14,7 @@ Gets Document's ID.
 ```bash
 
 cd curl
-CONF_FILE=.setenv Nuxeo\_REST_Document_getUID.sh /
+CONF_FILE=.setenv Nuxeo_REST_Document_getUID.sh /
 ```
 
 # Increment version of a document using REST API
@@ -30,6 +30,6 @@ Increments document version.
 ```bash
 
 cd curl
-CONF_FILE=.setenv Nuxeo\_REST_Document_incrementVersion.sh /default-domain/workspaces/doc1 minor "Incrementing minor version"
+CONF_FILE=.setenv Nuxeo_REST_Document_incrementVersion.sh /default-domain/workspaces/doc1 minor "Incrementing minor version"
 ```
 
