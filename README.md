@@ -33,3 +33,24 @@ cd curl
 CONF_FILE=.setenv Nuxeo_REST_Document_incrementVersion.sh /default-domain/workspaces/doc1 minor "Incrementing minor version"
 ```
 
+# Download document's blob using REST API
+
+Downloads document's blob. Blob will be saved in a file named `blob` in the current directory.  
+
+## Parameters
+
+1. document path  
+1. blob's xpath (optional. Default value: `file:content`)  
+
+```bash
+
+cd curl
+CONF_FILE=.setenv Nuxeo_REST_Document_getBlob.sh /default-domain/workspaces/doc1
+```
+
+```bash
+
+cd curl
+CONF_FILE=.setenv Nuxeo_REST_Document_getBlob.sh /default-domain/workspaces/doc1 files:files/0/file
+```
+
