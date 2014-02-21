@@ -30,7 +30,7 @@ Increments document version.
 ```bash
 
 cd curl
-CONF_FILE=.setenv Nuxeo_REST_Document_incrementVersion.sh /default-domain/workspaces/doc1 minor "Incrementing minor version"
+CONF_FILE=.setenv Nuxeo_REST_Document_incrementVersion.sh /default-domain/workspaces/workspace1/doc1 minor "Incrementing minor version"
 ```
 
 # Download document's blob using REST API
@@ -45,12 +45,12 @@ Downloads document's blob. Blob will be saved in a file named `blob` in the curr
 ```bash
 
 cd curl
-CONF_FILE=.setenv Nuxeo_REST_Document_getBlob.sh /default-domain/workspaces/doc1
+CONF_FILE=.setenv Nuxeo_REST_Document_getBlob.sh /default-domain/workspaces/workspace1/doc1
 ```
 
 ```bash
 
 cd curl
-CONF_FILE=.setenv Nuxeo_REST_Document_getBlob.sh /default-domain/workspaces/doc1 files:files/0/file
+CONF_FILE=.setenv Nuxeo_REST_Document_getBlob.sh /default-domain/workspaces/workspace1/doc1 files:files/0/file
 ```
 
