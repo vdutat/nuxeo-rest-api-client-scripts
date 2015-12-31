@@ -23,3 +23,4 @@ target
 dependency-tree.log
 *.swp
 build.properties
+*.out
