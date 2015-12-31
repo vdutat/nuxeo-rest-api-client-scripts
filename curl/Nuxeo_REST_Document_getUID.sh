@@ -18,31 +18,31 @@ fi
 . $CONF_FILE
 #cat $CONF_FILE
 
-AUTH_PARAMS=""
-if [ ! -z "$NX_TOKEN" ]
-then
-    AUTH_PARAMS="-H NX_TS:$NX_TS -H NX_RD:$NX_RD -H NX_TOKEN:$NX_TOKEN -H NX_USER:$NX_USER"
-else
-    AUTH_PARAMS="-u $NUXEO_USER:$NUXEO_PASSWORD"
-fi
+source utils.sh
 
-DOCUMENT_PATH=$1
+DOCUMENT_PATH=$(urlEncode "$1")
 
 echo "Getting document UID ..."
 HTTP_METHOD="GET"
 URL="http://$NUXEO_SERVER/nuxeo/api/v1/path$DOCUMENT_PATH"
 REQ_BODY=""
 echo "$HTTP_METHOD $URL $REQ_BODY"
-CURL_CMD="curl -s -X $HTTP_METHOD $AUTH_PARAMS \
+curl -s -X $HTTP_METHOD $(curlAuthParams) \
 -H 'Content-Type:application/json' \
-$URL"
-#echo $CURL_CMD
-DOC_JSON=`$CURL_CMD`
+-o $0.out \
+$URL
 
-echo $DOC_JSON > $0.out
+DOC_JSON=`cat $0.out`
 
-#echo $DOC_JSON| python -mjson.tool
-DOC_UID=`echo $DOC_JSON | jq '.uid'`
-DOC_UID="${DOC_UID%\"}"
-DOC_UID="${DOC_UID#\"}"
-echo "UID:$DOC_UID"
+firstchar=${DOC_JSON:0:1}
+if [ "$firstchar" == "{" ]
+then
+    echo $DOC_JSON|jq .
+    DOC_UID=`echo $DOC_JSON | jq '.uid'`
+    DOC_UID="${DOC_UID%\"}"
+    DOC_UID="${DOC_UID#\"}"
+    echo "UID:$DOC_UID"
+else
+    echo $DOC_JSON
+fi
+
