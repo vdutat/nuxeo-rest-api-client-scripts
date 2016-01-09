@@ -24,3 +24,4 @@ dependency-tree.log
 *.swp
 build.properties
 *.out
+node_modules
