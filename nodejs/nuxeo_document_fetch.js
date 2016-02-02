@@ -30,7 +30,7 @@ client.document(documentPath).fetch(function(error, doc) {
         throw error;
     }
     //console.log('YES %j', doc);
-    console.log(util.inspect(doc, {colors: true, depth: 5}));
+    console.log(util.inspect(doc, {colors: true, depth: 7}));
 });
 
 
