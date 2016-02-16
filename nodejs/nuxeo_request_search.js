@@ -1,4 +1,4 @@
-var usage = 'Usage: ' + process.argv[0] + ' ' + process.argv[1] + ' <query> [<schemas>]'
+var usage = 'Usage: ' + process.argv[0] + ' ' + process.argv[1] + ' <query> [<comma-separated schemas>] [<comma-separated enrichers>]'
 if (process.argv.length < 2) {
     console.log(usage);
     process.exit(1);
@@ -24,11 +24,18 @@ client.connect(function(error, client) {
         throw error;
     }
     // OK, the returned client is connected
-    console.log('* Client is connected: ' + client.connected);
+    //console.log('* Client is connected: ' + client.connected);
 });
+if (process.argv.length >= 4) {
+    enrichers = process.argv[4].split(',');
+    client.header('X-NXenrichers.document', enrichers);
+}
 var query = process.argv[2];
 console.log('* query: ' + query);
 console.log('* schemas: ' + docSchemas);
+if (process.argv.length >= 4) {
+    console.log('* enrichers: ' + enrichers);
+}
 //query = encodeURI(query);
 //console.log('* query: ' + query);
 
@@ -48,6 +55,6 @@ client.request('/').schemas(docSchemas).path('@search').query({'query':query}).e
     if (error) {
       throw error;
     }
-    console.log(util.inspect(data, {depth: 5, colors: true}));
+    console.log(util.inspect(data, {depth: 6, colors: true}));
 });
 
