@@ -25,34 +25,21 @@ DOCUMENT_PATH=$(urlEncode "$1")
 
 if [ $# -gt 1 ]
 then
-    # 6.0
-    ENRICHER_HEADERS="-H 'X-NXContext-Category:$2'"
-    # 7.10
-    #ENRICHER_HEADERS="-H 'X-NXenrichers.document:$2'"
-    #ENRICHER_URL="?enrichers.document=$2"
+    ENRICHER_HEADERS="-H 'X-NXenrichers.document:$2'"
+    ENRICHER_URL="?enrichers.document=$2"
 fi
 
-# 6.0
-# -H 'X-NXContext-Category:allowedDocumentTypes' \
-# 7.10
 # -H 'X-NXenrichers.document:allowedDocumentTypes' \
 # -H 'X-NXenrichers.document:publishedDocuments' \
 
 echo "Getting document ..."
 HTTP_METHOD="GET"
-# 6.0
-URL="http://$NUXEO_SERVER/nuxeo/api/v1/path$DOCUMENT_PATH"
 # 7.10
-#URL="http://$NUXEO_SERVER/nuxeo/api/v1/path$DOCUMENT_PATH$ENRICHER_URL"
-#echo "$HTTP_METHOD $URL $ENRICHER_HEADERS $REQ_BODY"
-# 6.0
-CURL_CMD="curl -s -X $HTTP_METHOD $ENRICHER_HEADERS $(curlAuthParams) \
+URL="http://$NUXEO_SERVER/nuxeo/api/v1/path$DOCUMENT_PATH$ENRICHER_URL"
+echo "$HTTP_METHOD $URL $ENRICHER_HEADERS $REQ_BODY"
+CURL_CMD="curl -s -X $HTTP_METHOD $(curlAuthParams) \
 -H 'Content-Type:application/json' \
 $URL"
-# 7.10
-#CURL_CMD="curl -s -X $HTTP_METHOD $(curlAuthParams) \
-#-H 'Content-Type:application/json' \
-#$URL"
 
 echo $CURL_CMD
 DOC_JSON=`eval $CURL_CMD`
