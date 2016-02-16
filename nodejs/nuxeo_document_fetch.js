@@ -13,7 +13,8 @@ var util = require('util');var connectInfo = {
 var client = new nuxeo.Client(connectInfo).schema('*');
 var enrichers = process.argv.slice(3).join(',');
 if (enrichers.length > 0) {
-    client.header('X-NXenrichers.document', enrichers);
+    //client.header('X-NXenrichers.document', enrichers);
+    client.header('X-NXContext-Category', enrichers);
 }
 client.connect(function(error, client) {
     if (error) {
