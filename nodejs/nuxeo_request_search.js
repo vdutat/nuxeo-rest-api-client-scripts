@@ -1,5 +1,5 @@
 var usage = 'Usage: ' + process.argv[0] + ' ' + process.argv[1] + ' <query> [<comma-separated schemas>] [<comma-separated enrichers>]'
-if (process.argv.length < 2) {
+if (process.argv.length < 3) {
     console.log(usage);
     process.exit(1);
 }
@@ -11,11 +11,14 @@ var connectInfo = {
     username: 'Administrator',
     password: 'Administrator'
 }
+var query = process.argv[2];
+console.log('* query: ' + query);
 var docSchemas = ['dublincore'];
-if (process.argv.length >= 3) {
+if (process.argv.length > 3) {
     docSchemas = process.argv[3].split(',');
     connectInfo.schemas = docSchemas;
 }
+console.log('* schemas: ' + docSchemas);
 
 var client = new nuxeo.Client(connectInfo);
 client.connect(function(error, client) {
@@ -26,14 +29,11 @@ client.connect(function(error, client) {
     // OK, the returned client is connected
     //console.log('* Client is connected: ' + client.connected);
 });
-if (process.argv.length >= 4) {
+if (process.argv.length > 4) {
     enrichers = process.argv[4].split(',');
     client.header('X-NXenrichers.document', enrichers);
 }
-var query = process.argv[2];
-console.log('* query: ' + query);
-console.log('* schemas: ' + docSchemas);
-if (process.argv.length >= 4) {
+if (process.argv.length > 4) {
     console.log('* enrichers: ' + enrichers);
 }
 //query = encodeURI(query);
