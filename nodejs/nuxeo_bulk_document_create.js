@@ -7,7 +7,11 @@ if (process.argv.length < 4) {
 var nuxeo = require('nuxeo');
 var util = require('util');
 var connectInfo = {
-    baseURL:'http://localhost:8080/nuxeo'
+    baseURL:'http://localhost:8080/nuxeo',
+    auth: {
+        username: 'Administrator',
+        password: 'Administrator'
+    }
 }
 var client = new nuxeo.Client(connectInfo).schema('*');
 client.connect(function(error, client) {

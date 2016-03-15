@@ -2,8 +2,10 @@ var nuxeo = require('nuxeo');
 var util = require('util');
 var connectInfo = {
     baseURL:'http://localhost:8080/nuxeo',
-    username: 'Administrator',
-    password: 'Administrator'
+	auth: {
+    	username: 'Administrator',
+    	password: 'Administrator'
+	}
 }
 var client = new nuxeo.Client(connectInfo);
 client.connect(function(error, client) {

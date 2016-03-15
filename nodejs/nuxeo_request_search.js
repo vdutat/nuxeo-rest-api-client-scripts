@@ -8,8 +8,10 @@ var nuxeo = require('nuxeo');
 var util = require('util');
 var connectInfo = {
     baseURL:'http://localhost:8080/nuxeo',
-    username: 'Administrator',
-    password: 'Administrator'
+    auth: {
+        username: 'Administrator',
+        password: 'Administrator'
+    }
 }
 var query = process.argv[2];
 console.log('* query: ' + query);

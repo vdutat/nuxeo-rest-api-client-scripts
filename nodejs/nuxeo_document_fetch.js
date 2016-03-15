@@ -5,10 +5,13 @@ if (process.argv.length < 3) {
 }
 
 var nuxeo = require('nuxeo');
-var util = require('util');var connectInfo = {
+var util = require('util');
+var connectInfo = {
     baseURL:'http://localhost:8080/nuxeo',
-    username: 'Administrator',
-    password: 'Administrator'
+    auth: {
+        username: 'Administrator',
+        password: 'Administrator'
+    }
 }
 var client = new nuxeo.Client(connectInfo).schema('*');
 var enrichers = process.argv.slice(3).join(',');
@@ -27,9 +30,9 @@ var documentPath = process.argv[2];
 console.log('document path: ' + documentPath);
 client.document(documentPath).fetch(function(error, doc) {
     if (error) {
+        console.log(util.inspect(error, {colors: true}));
         throw error;
     }
-    //console.log('YES %j', doc);
     console.log(util.inspect(doc, {colors: true, depth: 7}));
 });
 
