@@ -26,7 +26,7 @@ var parentDocumentPath = process.argv[2];
 var nbrDocuments = process.argv[3];
 var baseDocumentName = 'Doc ';
 if (process.argv.length > 4) {
-    baseDocumentName = process.argv[4] + ' ';
+    baseDocumentName = process.argv[4];
 }
 var baseDocumentPath = parentDocumentPath + '/' + baseDocumentName;
 console.log('* base document path: ' + baseDocumentPath);
@@ -34,6 +34,7 @@ console.log('* number of documents to create: ' + nbrDocuments);
 
 for (i = 0; i < nbrDocuments; i++) {
     var documentPath = baseDocumentPath + i;
+    console.log('* deleting ' + documentPath);
     var doc = new client.document(documentPath);
     doc.delete(function(error) {
         console.log('* Deleting ' + doc.type + ' - ' + doc.path);
