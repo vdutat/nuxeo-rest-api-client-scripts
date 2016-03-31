@@ -1,0 +1,16 @@
+{
+  "from" : 0,
+  "size" : 20,
+  "query" : {
+    "bool" : {
+      "must" : [
+        { "match" : { "principalName" : "system" } }
+      ],
+      "should" : [
+        { "match" : { "docUUID" : "79a2c45b-6130-4357-a827-5644a7cb56e6" } },
+        { "match" : { "docUUID" : "f2791c64-50fe-4697-9424-87c4b33ec126" } }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}
