@@ -18,6 +18,7 @@ var enrichers = process.argv.slice(3).join(',');
 if (enrichers.length > 0) {
     client.header('X-NXenrichers.document', enrichers);
 }
+client.header('depth', 'max');
 client.connect(function(error, client) {
     if (error) {
         // cannot connect
