@@ -1,4 +1,4 @@
-USAGE="Usage: $0 <docpath> <operation> [<operation output type:blob|json>]\nEx: Nuxeo_REST_Document_call_operation.sh / UserManager.ExportGroups blob"
+USAGE="Usage: $0 <docpath> <operation> [<operation output type:blob|json>]\nEx: Nuxeo_REST_Document_call_operation.sh / UserManager.ExportGroups blob\nNUXEO_REPOSITORY=secondrepo OP_PARAMS=\"\\\"query\\\":\\\"SELECT \* FROM DefaultRelation\\\"\" Nuxeo_REST_Document_call_operation.sh / Repository.Query\nOP_PARAMS=\"\\\"name\\\":\\\"ScanIngestionStart\\\"\" Nuxeo_REST_Document_call_operation.sh / Event.Fire\n"
 
 if [ $# -lt 2 ]
 then
@@ -23,18 +23,20 @@ source utils.sh
 DOCUMENT_PATH=$(urlEncode "$1")
 OP_NAME=$2
 
-echo "Calling automation $OP_NAME on document ..."
+echo "Calling automation $OP_NAME on document $DOCUMENT_PATH..."
 
 #using REST API
 HTTP_METHOD="POST"
-URL="http://$NUXEO_SERVER/nuxeo/api/v1/repo/default/path$DOCUMENT_PATH/@op/$OP_NAME"
-REQ_BODY="{ \"params\": {}}"
+URL="http://$NUXEO_SERVER/nuxeo/api/v1/repo/${NUXEO_REPOSITORY:-default}/path$DOCUMENT_PATH/@op/$OP_NAME"
+REQ_BODY="{ \"params\": {$OP_PARAMS}}"
 
 echo "$HTTP_METHOD $URL $REQ_BODY"
+rm -f $0.out
 curl -s -X $HTTP_METHOD $(curlAuthParams) \
 -w 'HTTP return code: %{http_code}\n' -o $0.out \
 -H "Content-Type:application/json+nxrequest" \
--H "X-NXDocumentProperties:*" \
+-H "X-NXproperties:*" \
+-H "depth:max" \
 -d "$REQ_BODY" \
 $URL
 
