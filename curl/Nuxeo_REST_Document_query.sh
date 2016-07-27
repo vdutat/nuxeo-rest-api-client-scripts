@@ -37,6 +37,7 @@ HTTP_METHOD="GET"
 #PLAIN_QUERY="SELECT * FROM Document WHERE ecm:path STARTSWITH '$DOCUMENT_PATH' AND ecm:isCheckedInVersion = 0 AND ecm:currentLifeCycleState <> 'deleted'"
 QUERY=$(urlEncode "$PLAIN_QUERY")
 URL="http://$NUXEO_SERVER/nuxeo/api/v1/repo/${NUXEO_REPOSITORY:-default}/path$DOCUMENT_PATH/@search?query=$QUERY&pageSize=0&&maxResults=0"
+URL="http://$NUXEO_SERVER/nuxeo/api/v1/query/?query=$QUERY&pageSize=0&&maxResults=0"
 
 REQ_BODY=""
 REQ_PARAMS=""
