@@ -1,4 +1,4 @@
-USAGE="Usage: $0 <docpath> <operation> [<operation output type:blob|json>]\nEx: Nuxeo_REST_Document_call_operation.sh / UserManager.ExportGroups blob\nNUXEO_REPOSITORY=secondrepo OP_PARAMS=\"\\\"query\\\":\\\"SELECT \* FROM DefaultRelation\\\"\" Nuxeo_REST_Document_call_operation.sh / Repository.Query\nOP_PARAMS=\"\\\"name\\\":\\\"ScanIngestionStart\\\"\" Nuxeo_REST_Document_call_operation.sh / Event.Fire\n"
+USAGE="Usage: $0 <docpath> <operation> [<operation output type:blob|json>]\nEx: \nNuxeo_REST_Document_call_operation.sh / UserManager.ExportGroups blob\nNUXEO_REPOSITORY=secondrepo OP_PARAMS=\"\\\"query\\\":\\\"SELECT \* FROM DefaultRelation\\\"\" Nuxeo_REST_Document_call_operation.sh / Repository.Query\nOP_PARAMS=\"\\\"name\\\":\\\"ScanIngestionStart\\\"\" Nuxeo_REST_Document_call_operation.sh / Event.Fire\nOP_PARAMS=\"\\\"query\\\":\\\"SELECT AVG(dss:innerSize) FROM Document WHERE ecm:isProxy = 0 AND ecm:isCheckedInVersion = 0 AND ecm:currentLifeCycleState <> 'deleted'\\\"\" Nuxeo_REST_Document_call_operation.sh / Repository.ResultSetQuery\n"
 
 if [ $# -lt 2 ]
 then
