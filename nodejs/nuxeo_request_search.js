@@ -3,7 +3,7 @@ if (process.argv.length < 3) {
     console.log(usage);
     process.exit(1);
 }
-
+// nuxeo-js-client 0.9.0
 var nuxeo = require('nuxeo');
 var util = require('util');
 var connectInfo = {
