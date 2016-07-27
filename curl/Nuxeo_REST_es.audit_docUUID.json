@@ -1,0 +1,12 @@
+{
+  "from" : 0,
+  "size" : 20,
+  "query" : {
+    "bool" : {
+      "should" : [
+        { "match" : { "docUUID" : "c6df128e-3b57-41a2-b521-b81e91f78e1c" } }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}
