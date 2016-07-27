@@ -1,5 +1,5 @@
 #!/bin/bash
-USAGE="Usage: $0 [<index_name>] [<json_payload_filepath>]"
+USAGE="Usage: $0 [<index_name>] [<json_payload_filepath>]\nEx.: $0 nuxeo\n     $0 audit Nuxeo_REST_es.audit_docUUID.json"
 
 #if [ $# -lt 1 ]
 #then
@@ -20,6 +20,7 @@ fi
 
 source utils.sh
 
+ES_INDEX=/nuxeo
 if [ $# -gt 0 ]
 then
     ES_INDEX=/$1
