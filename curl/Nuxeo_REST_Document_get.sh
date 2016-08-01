@@ -1,5 +1,5 @@
 #!/bin/bash
-USAGE="Usage: $0 <docpath> [<comma-separated enrichers>]"
+USAGE="Usage: $0 <docpath> [<comma-separated schemas> [<comma-separated enrichers>] ]"
 
 if [ $# -lt 1 ]
 then
@@ -23,10 +23,17 @@ source utils.sh
 
 DOCUMENT_PATH=$(urlEncode "$1")
 
+SCHEMAS_PARAM="*"
 if [ $# -gt 1 ]
 then
-    ENRICHER_HEADERS="-H 'X-NXenrichers.document:$2'"
-    ENRICHER_URL="?enrichers.document=$2"
+    SCHEMAS_PARAM="$2"
+fi
+SCHEMAS_REQ_PARAM="-H X-NXproperties:$SCHEMAS_PARAM"
+
+if [ $# -gt 2 ]
+then
+    ENRICHER_HEADERS="-H 'X-NXenrichers.document:$3'"
+    ENRICHER_URL="?enrichers.document=$3"
 fi
 
 # -H 'X-NXenrichers.document:allowedDocumentTypes' \
@@ -36,9 +43,10 @@ echo "Getting document ..."
 HTTP_METHOD="GET"
 # 7.10
 URL="http://$NUXEO_SERVER/nuxeo/api/v1/path$DOCUMENT_PATH$ENRICHER_URL"
-echo "$HTTP_METHOD $URL $ENRICHER_HEADERS $REQ_BODY"
+echo "$HTTP_METHOD $URL $SCHEMAS_REQ_PARAM $ENRICHER_HEADERS $REQ_BODY"
 CURL_CMD="curl -s -X $HTTP_METHOD $(curlAuthParams) \
 -H 'Content-Type:application/json' \
+${SCHEMAS_REQ_PARAM} \
 $URL"
 
 echo $CURL_CMD
