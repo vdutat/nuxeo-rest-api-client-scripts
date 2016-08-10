@@ -23,6 +23,7 @@ source utils.sh
 
 DOCUMENT_PATH=$1
 PLAIN_QUERY=$2
+TMP_FILENAME=`basename $0`.`date "+%s"`.out
 
 SCHEMAS_PARAM="*"
 if [ $# -eq 3 ]
@@ -43,13 +44,13 @@ REQ_BODY=""
 REQ_PARAMS=""
 echo "$HTTP_METHOD $URL $REQ_BODY $SCHEMAS_REQ_PARAM"
 
-rm -f $0.out
 curl -s -X $HTTP_METHOD  $(curlAuthParams) \
 -H 'Content-Type:application/json' \
 ${SCHEMAS_REQ_PARAM} \
--w 'HTTP return code: %{http_code}\n' -o $0.out \
+-w 'HTTP return code: %{http_code}\n' -o $TMP_FILENAME \
 $URL
-DOC_JSON=`cat $0.out`
+DOC_JSON=`cat $TMP_FILENAME`
+rm -f $TMP_FILENAME
 #echo $CURL_CMD
 
 firstchar=${DOC_JSON:0:1}
