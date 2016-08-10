@@ -42,6 +42,8 @@ URL="http://$NUXEO_SERVER/nuxeo/api/v1/query/?query=$QUERY&pageSize=0&&maxResult
 REQ_BODY=""
 REQ_PARAMS=""
 echo "$HTTP_METHOD $URL $REQ_BODY $SCHEMAS_REQ_PARAM"
+
+rm -f $0.out
 curl -s -X $HTTP_METHOD  $(curlAuthParams) \
 -H 'Content-Type:application/json' \
 ${SCHEMAS_REQ_PARAM} \
