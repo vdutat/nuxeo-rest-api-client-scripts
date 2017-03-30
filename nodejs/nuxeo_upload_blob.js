@@ -1,3 +1,9 @@
+function mylog(message, silent) {
+    if (!silent) {
+        console.log(message);
+    }
+}
+
 var Nuxeo = require('nuxeo');
 var util = require('util');
 var fs = require('fs');
@@ -8,8 +14,10 @@ var Path = require('path');
 var getopt = new GetOpt([
     ['c', 'config-file=ARG', 'connection config file name'],
     ['m', 'mime-type=ARG', 'blob MIME type'],
+    ['p', 'property=ARG', 'blob property name (default: file:content)'],
     ['s', 'schema=ARG+', 'schema(s) (default: dublincore)'],
     ['e', 'enricher=ARG+', 'enricher(s)'],
+    ['S', 'silent', 'silent mode (raw JSON)'],
     ['v', 'verbose', 'verbose mode'],
     ['h', 'help', 'display this help']
 ]);
@@ -26,6 +34,7 @@ if (opt.argv.length == 0) {
 //console.info(opt);
 
 var verbose = opt.options.verbose;
+var silent = opt.options.silent;
 var configFileName = 'localhost_config.json';
 if(opt.options['config-file']) {
     configFileName = opt.options['config-file'];
@@ -39,9 +48,9 @@ try {
 }
 var connectInfo = JSON.parse(fs.readFileSync(configFileName));
 var docpath = opt.argv[0];
-console.log('* document path: ' + docpath);
+mylog('* document path: ' + docpath, silent);
 var blobFileName = opt.argv[1];
-console.log('* filename: ' + blobFileName);
+mylog('* filename: ' + blobFileName, silent);
 try {
     fs.accessSync(blobFileName, fs.F_OK);
 } catch (e) {
@@ -52,9 +61,9 @@ var mimetype = Mime.lookup(blobFileName);
 if(opt.options['mime-type']) {
     mimetype = opt.options['mime-type'];
 }
-console.log('* MIME type: ' + mimetype);
+mylog('* MIME type: ' + mimetype, silent);
 var filestats = fs.statSync(blobFileName);
-console.log('* file size: ' + filestats['size']);
+mylog('* file size: ' + filestats['size'], silent);
 var blob = new Nuxeo.Blob({
     content: fs.createReadStream(blobFileName),
     name: Path.basename(blobFileName),
@@ -65,35 +74,42 @@ var docSchemas = ['dublincore'];
 if(opt.options['schema']) {
     docSchemas = opt.options['schema'];
 }
-console.log('* schemas: ' + docSchemas);
+mylog('* schemas: ' + docSchemas, silent);
+var propertyName = 'file:content';
+if(opt.options['property']) {
+    propertyName = opt.options['property'];
+}
 
 var enrichers = { document:[]};
 if(opt.options['enricher']) {
     enrichers = opt.options['enricher'];
-    console.log('* enrichers: ' + enrichers);
+    mylog('* enrichers: ' + enrichers, silent);
 }
 var nuxeo = new Nuxeo(connectInfo).schemas(docSchemas).enrichers(enrichers);
 nuxeo.repository().fetch(docpath).then(function(doc) {
-    console.log('* fetching document ...');
-    if (verbose) {
+    mylog('* fetching document ...', silent);
+    if (!silent && verbose) {
         console.log(util.inspect(doc, {depth: 6, colors: true}));
     }
-    console.log('* document fetched: ' + doc.path);
-    console.log('* uploading blob ...');
+    mylog('* document fetched: ' + doc.path, silent);
+    mylog('* uploading blob ...', silent);
+    if (!silent && verbose) {
+        mylog(util.inspect(blob, {depth: 6, colors: true}));
+    }
     nuxeo.batchUpload().upload(blob).then(function(res) {
         // res.blob instanceof Nuxeo.BatchBlob
-        if (verbose) {
-            console.log(util.inspect(res.blob, {depth: 6, colors: true}));
+        mylog('* attaching blob to document ...', silent);
+        if (!silent && verbose) {
+            mylog(util.inspect(res.blob, {depth: 6, colors: true}));
         }
-        console.log('* attaching blob to document ...');
         nuxeo.operation('Blob.AttachOnDocument')
-            .params({'document': doc.path})
+            .params({'document': doc.path, 'xpath': propertyName})
             .input(res.blob)
             .execute().then(function(ret) {
             if (verbose) {
-                console.log(util.inspect(ret, {depth: 6, colors: true}));
+                mylog(util.inspect(ret, {depth: 6, colors: true}));
             }
-            console.log('* blob attached');
+            mylog('* blob attached', silent);
         }).catch(function(error) {
             console.log('! batch attach: ' + error);
         });
