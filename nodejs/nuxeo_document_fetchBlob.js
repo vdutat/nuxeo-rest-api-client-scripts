@@ -35,6 +35,7 @@ var docSchemas = ['dublincore', 'file'];
 if(opt.options['schema']) {
     docSchemas = opt.options['schema'];
 }
+console.log('* schemas: ' + docSchemas);
 var propertyName = 'file:content';
 if(opt.options['property']) {
     propertyName = opt.options['property'];
@@ -44,7 +45,6 @@ if(opt.options['filename']) {
     var filename = opt.options['filename'];
 } else {
 }
-console.log('* schemas: ' + docSchemas);
 var enrichers = { document:[]};
 if(opt.options['enricher']) {
     enrichers = opt.options['enricher'];
