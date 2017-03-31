@@ -1,0 +1,8 @@
+{
+    "baseURL":"https://nightly.nuxeo.com/nuxeo",
+    "auth": {
+        "method": "basic",
+        "username": "Administrator",
+        "password": "Administrator"
+    }
+}
