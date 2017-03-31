@@ -8,9 +8,12 @@ jsonQuery () {
 
 curlAuthParams() {
     local __local_auth_params=""
-    if [ ! -z "$NX_TOKEN" ]
+    if [ ! -z "$NX_TOKEN" -a ! -z "$NX_USER" ]
     then
         __local_auth_params="-H NX_TS:$NX_TS -H NX_RD:$NX_RD -H NX_TOKEN:$NX_TOKEN -H NX_USER:$NX_USER"
+    elif [ ! -z "$NX_TOKEN" ]
+    then
+        __local_auth_params="-H X-Authentication-Token:$NX_TOKEN"
     else
         __local_auth_params="-u $NUXEO_USER:$NUXEO_PASSWORD"
     fi
