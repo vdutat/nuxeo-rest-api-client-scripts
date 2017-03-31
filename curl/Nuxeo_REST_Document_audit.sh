@@ -101,10 +101,17 @@ then
     fi
     REQ_PARAMS+="endEventDate=$END_DATE"
 fi
+if [ -z "$REQ_PARAMS" ]
+then
+    REQ_PARAMS="?"
+else
+    REQ_PARAMS+="&"
+fi
+REQ_PARAMS+="pageSize=0&&maxResults=0"
 
 echo "Getting document history ..."
 HTTP_METHOD="GET"
-URL="http://$NUXEO_SERVER/nuxeo/api/v1/path$DOCUMENT_PATH/@audit$REQ_PARAMS"
+URL="${NUXEO_PROTOCOL:-http}://$NUXEO_SERVER/nuxeo/api/v1/path$DOCUMENT_PATH/@audit$REQ_PARAMS"
 REQ_BODY=""
 echo "$HTTP_METHOD $URL $REQ_BODY"
 curl -s -X $HTTP_METHOD $(curlAuthParams) \
