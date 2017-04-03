@@ -15,6 +15,7 @@ var Path = require('path');
 var getopt = new GetOpt([
     ['c', 'config-file=ARG', 'connection config file name'],
     ['p', 'param=ARG+', 'provider parameters'],
+    ['a', 'aggregate=ARG+', 'aggaregate(s) as URL parameters, values in JSON format (array)'],
     ['t', 'query-type=ARG', 'query type (default:NXQL): NXQL, pageprovider'],
     ['s', 'schema=ARG+', 'schema(s) (default: dublincore)'],
     ['e', 'enricher=ARG+', 'enricher(s)'],
@@ -28,6 +29,7 @@ getopt.setHelp(
     + '\nExecutes NXQL query or page provider. Comptible with Nuxeo LTS 2016 and up\n'
     + '\nEx:\n'
     + Path.basename(process.argv[1]) + ' users_listing -t pageprovider -p "*" -s user (list all users)'
+    + Path.basename(process.argv[1]) + ' SUPNXP-19660 -t pageprovider -a "SUPNXP-19660_pp%3Adublincore_source_agg=%5B%22source1%22%5D&SUPNXP-19660_pp%3Adublincore_rights_agg=%5B%22rights1%22%5D" (executes page provider with aggregates)'
     + '\n'
 );
 //getopt.bindHelp();
@@ -85,14 +87,19 @@ var requestParams = {};
 var params = [];
 if(opt.options['param']) {
     params = opt.options['param'];
+    mylog('* parameters: ' + params, silent);
 }
-mylog('* parameters: ' + params, silent);
+var aggregate = '';
+if(opt.options['aggregate']) {
+    aggregate = opt.options['aggregate'];
+    mylog('* aggregate: ' + aggregate, silent);
+}
 var requestUrl = 'search/pp/' + query + '/execute';
 if (querytype != 'pageprovider') {
     requestUrl = 'search/lang/' + querytype + '/execute';
     requestParams = {'query':query, 'queryParams':params};
 } else {
-    requestParams = {'queryParams':params};
+    requestUrl += '?' + aggregate;
 }
 nuxeo.request(requestUrl).queryParams(requestParams).execute().then(function(docs) {
     mylog('* querying ...', silent);
