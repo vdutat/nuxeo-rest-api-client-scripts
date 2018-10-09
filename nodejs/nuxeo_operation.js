@@ -1,3 +1,8 @@
+function mylog(message, silent) {
+    if (!silent) {
+        console.log(message);
+    }
+}
 var usage = 'Usage: ' + process.argv[0] + ' ' + process.argv[1] + " <docpath> <operation> [<comma-separated schemas>] [<comma-separated enrichers>]\nEx: \nNuxeo_REST_Document_call_operation.sh / UserManager.ExportGroups blob\nNUXEO_REPOSITORY=secondrepo OP_PARAMS=\"\\\"query\\\":\\\"SELECT \* FROM DefaultRelation\\\"\" Nuxeo_REST_Document_call_operation.sh / Repository.Query\nOP_PARAMS=\"\\\"name\\\":\\\"ScanIngestionStart\\\"\" Nuxeo_REST_Document_call_operation.sh / Event.Fire\nOP_PARAMS=\"\\\"query\\\":\\\"SELECT AVG(dss:innerSize) FROM Document WHERE ecm:isProxy = 0 AND ecm:isCheckedInVersion = 0 AND ecm:currentLifeCycleState <> 'deleted'\\\"\" node nuxeo_operation.js / Repository.ResultSetQuery\n";
 // nuxeo-js-client 0.24.0
 var Nuxeo = require('nuxeo');
@@ -12,7 +17,9 @@ var getopt = new GetOpt([
     ['p', 'params=ARG', 'operation parameters\' JSON'],
     ['s', 'schema=ARG+', 'schema(s) (default: dublincore)'],
     ['e', 'enricher=ARG+', 'enricher(s)'],
+    ['H', 'header=ARG+', 'header'],
     ['r', 'repository=ARG', 'repository'],
+    ['S', 'silent', 'silent mode (raw JSON)'],
     ['v', 'verbose', 'verbose mode'],
     ['h', 'help', 'display this help']
 ]);
@@ -21,7 +28,10 @@ getopt.setHelp(
     + '\nExecutes an automation operation/chain with parameters.'
     + 'Ex: \nnode ' + Path.basename(process.argv[1]) + " / Event.Fire -p \"\\\"name\\\":\\\"ScanIngestionStart\\\"\"\n"
     + 'node ' + Path.basename(process.argv[1]) + " / UserManager.ExportGroups -o blob\n"
-    + 'node ' + Path.basename(process.argv[1]) + " / Repository.Query -p \"\\\"query\\\":\\\"SELECT \* FROM DefaultRelation\\\"\""
+    + 'node ' + Path.basename(process.argv[1]) + " / Repository.Query -p \"\\\"query\\\":\\\"SELECT \* FROM DefaultRelation\\\"\"" + "\n"
+    + 'node ' + Path.basename(process.argv[1])+ " / Repository.ResultSetQuery -p \"\\\"query\\\":\\\"SELECT COUNT(ecm:uuid) FROM Document\\\"\" -v" + "\n"
+    + 'node ' + Path.basename(process.argv[1])+ " / Repository.ResultSetQuery -p \"\\\"query\\\":\\\"SELECT AVG(dss:innerSize) FROM Document WHERE ecm:isProxy = 0 AND ecm:isCheckedInVersion = 0 AND ecm:currentLifeCycleState <> 'deleted'\\\"\" -v" + "\n"
+    + 'node ' + Path.basename(process.argv[1]) + " /default-domain/workspaces/SUPNXP-22722 Document.RemovePermission -p \"\\\"id\\\":\\\"ReadWrite\\\",\\\"user\\\":\\\"vdu1\\\",\\\"acl\\\":\\\"local\\\"\" -e \"acls\" -H \"Nuxeo-Transaction-Timeout:3600\"" + "\n"
     + '\n'
 );
 //getopt.bindHelp();
@@ -34,68 +44,90 @@ if (opt.argv.length < 2) {
 //console.info(opt);
 
 var verbose = opt.options.verbose;
+var silent = opt.options.silent;
 var configFileName = 'localhost_config.json';
 if(opt.options['config-file']) {
     configFileName = opt.options['config-file'];
 }
-console.log('* config file name: ' + configFileName);
+mylog('* config file name: ' + configFileName, silent);
 try {
     fs.accessSync(configFileName, fs.F_OK);
 } catch (e) {
-    console.log("configuration file '" + configFileName + "' does not exist");
+    mylog("configuration file '" + configFileName + "' does not exist", silent);
     process.exit(2);
 }
 var connectInfo = JSON.parse(fs.readFileSync(configFileName));
 
 var documentPath = opt.argv[0];
-console.log('* document path: ' + documentPath);
+var documents = [];
+if(documentPath.indexOf(',') > -1) {
+    documents = documentPath.split(',');
+} else {
+    documents.push(documentPath);
+}
+mylog('* document path: ' + documentPath, silent);
+mylog('* document paths: ' + documents, silent);
 
 var opName = opt.argv[1];
-console.log('* operation name: ' + opName);
+mylog('* operation name: ' + opName, silent);
 
 var opParams = {};
 if(opt.options['params']) {
     opParams = JSON.parse("{" + opt.options['params'] + "}");
 }
-console.log('* operation parameters: ' + util.inspect(opParams, {depth: 6, colors: true}));
+mylog('* operation parameters: ' + util.inspect(opParams, {depth: 6, colors: true}), silent);
 
 var outputType = 'json';
 if(opt.options['output-type']) {
     outputType = opt.options['output-type'];
-    console.log('* output type: ' + outputType);
+    mylog('* output type: ' + outputType, silent);
 }
 
 var docSchemas = ['dublincore'];
 if(opt.options['schema']) {
     docSchemas = opt.options['schema'];
 }
-console.log('* schemas: ' + docSchemas);
+mylog('* schemas: ' + docSchemas, silent);
 var enrichers = { document:[]};
 if(opt.options['enricher']) {
-    enrichers = opt.options['enricher'];
-    console.log('* enrichers: ' + enrichers);
+    enrichers.document = opt.options['enricher'];
+    mylog('* enrichers: ' + JSON.stringify(enrichers), silent);
+}
+var reqHeaders = [];
+if(opt.options['header']) {
+    reqHeaders = opt.options['header'];
+    mylog('* headers: ' + JSON.stringify(reqHeaders), silent);
 }
 var repoName = 'default';
 if(opt.options['repository']) {
     repoName = opt.options['repository'];
-    console.log('* repository: ' + repoName);
+    mylog('* repository: ' + repoName, silent);
 }
 
 connectInfo.repositoryName = repoName;
-var nuxeo = new Nuxeo(connectInfo).schemas(docSchemas).enrichers(enrichers);
+var nuxeo = new Nuxeo(connectInfo).schemas(docSchemas)
+//.transactionTimeout(901000)
+.enrichers(enrichers);
+for (var i in reqHeaders) {
+    var headerArray = reqHeaders[i].split(':');
+    nuxeo.header(headerArray[0], headerArray[1]);
+}
 nuxeo.operation(opName).params(opParams).input(documentPath)
 .execute()
 //.execute({ schemas: docSchemas})
 .then(function(doc) {
-    console.log('* Executing operation ...');
-    if (verbose) {
+    mylog('* Executing operation ...', silent);
+    if (silent) {
+        mylog(JSON.stringify(doc));
+    } else {
         if (outputType == "blob") {
-            console.log(util.inspect(doc.body, {depth: 6, colors: true}));
+            mylog(util.inspect(doc.body, {depth: 6, colors: true}), silent);
+            // TODO write blob to file
         } else {
-            console.log(util.inspect(doc, {depth: 6, colors: true}));
+            mylog(util.inspect(doc, {depth: 6, colors: true}), silent);
         }
     }
 }).catch(function(err) {
-    console.log('! ' + err);
+    mylog('! ' + err, silent);
 });
 
