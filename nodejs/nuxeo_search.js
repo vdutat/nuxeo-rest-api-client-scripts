@@ -19,6 +19,7 @@ var getopt = new GetOpt([
     ['t', 'query-type=ARG', 'query type (default:NXQL): NXQL, pageprovider'],
     ['s', 'schema=ARG+', 'schema(s) (default: dublincore)'],
     ['e', 'enricher=ARG+', 'enricher(s)'],
+    ['H', 'header=ARG+', 'header'],
     ['r', 'repository=ARG', 'repository'],
     ['S', 'silent', 'silent mode (raw JSON)'],
     ['v', 'verbose', 'verbose mode'],
@@ -28,7 +29,7 @@ getopt.setHelp(
     'Usage: ' + Path.basename(process.argv[1]) + ' <query_or_pageprovider> [OPTIONS]\n\n[[OPTIONS]]\n'
     + '\nExecutes NXQL query or page provider. Comptible with Nuxeo LTS 2016 and up\n'
     + '\nEx:\n'
-    + Path.basename(process.argv[1]) + ' users_listing -t pageprovider -p "*" -s user (list all users)'
+    + Path.basename(process.argv[1]) + ' users_listing -t pageprovider -p "*" -s user (list all users)\n'
     + Path.basename(process.argv[1]) + ' SUPNXP-19660 -t pageprovider -a "SUPNXP-19660_pp%3Adublincore_source_agg=%5B%22source1%22%5D&SUPNXP-19660_pp%3Adublincore_rights_agg=%5B%22rights1%22%5D" (executes page provider with aggregates)'
     + '\n'
 );
@@ -70,10 +71,16 @@ if(opt.options['schema']) {
 }
 mylog('* schemas: ' + docSchemas, silent);
 
+var reqHeaders = [];
+if(opt.options['header']) {
+    reqHeaders = opt.options['header'];
+    mylog('* headers: ' + JSON.stringify(reqHeaders), silent);
+}
+
 var enrichers = { document:[]};
 if(opt.options['enricher']) {
-    enrichers = opt.options['enricher'];
-    mylog('* enrichers: ' + enrichers, silent);
+    enrichers.document = opt.options['enricher'];
+    mylog('* enrichers: ' + JSON.stringify(enrichers), silent);
 }
 var repoName = 'default';
 if(opt.options['repository']) {
@@ -83,6 +90,10 @@ if(opt.options['repository']) {
 
 connectInfo.repositoryName = repoName;
 var nuxeo = new Nuxeo(connectInfo).schemas(docSchemas).enrichers(enrichers);
+for (var i in reqHeaders) {
+    var headerArray = reqHeaders[i].split(':');
+    nuxeo.header(headerArray[0], headerArray[1]);
+}
 var requestParams = {};
 var params = [];
 if(opt.options['param']) {
