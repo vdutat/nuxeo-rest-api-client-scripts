@@ -1,4 +1,3 @@
-// nuxeo-js-client 0.24.0
 var Nuxeo = require('nuxeo');
 var util = require('util');
 var fs = require('fs');
@@ -10,6 +9,7 @@ var getopt = new GetOpt([
     ['c', 'config-file=ARG', 'connection config file name'],
     ['t', 'doc-type=ARG', 'document type (default: File)'],
     ['m', 'mime-type=ARG', 'blob MIME type'],
+    ['p', 'properties=ARG', 'properties\' JSON'],
     ['s', 'schema=ARG+', 'schema(s) (default: dublincore)'],
     ['e', 'enricher=ARG+', 'enricher(s)'],
     ['v', 'verbose', 'verbose mode'],
@@ -83,6 +83,13 @@ if(opt.options['enricher']) {
     enrichers = opt.options['enricher'];
     console.log('* enrichers: ' + enrichers);
 }
+var props = {};
+if(opt.options['properties']) {
+    props = JSON.parse("{" + opt.options['properties'] + "}");
+//} else if (docType == "File") {
+//    props = {'dc:title': documentName, 'dc:description': 'Created with ' + process.argv[1] }
+}
+console.log('* properties: ' + util.inspect(props, {depth: 6, colors: true}));
 
 var nuxeo = new Nuxeo(connectInfo).schemas(docSchemas).enrichers(enrichers);
 nuxeo.repository().fetch(parentDocumentPath).then(function(folder) {
@@ -95,7 +102,7 @@ nuxeo.repository().fetch(parentDocumentPath).then(function(folder) {
         'entity-type': 'document',
         type: docType,
         name: documentName,
-        properties: {'dc:title': documentName, 'dc:description': 'Created with ' + process.argv[1] }
+        properties: props
     };
     nuxeo.repository().create(folder.path, newDoc).then(function(doc) {
         console.log('* Created ' + doc.type + ' - ' + doc.path)
@@ -138,6 +145,10 @@ nuxeo.repository().fetch(parentDocumentPath).then(function(folder) {
         }
     }).catch(function(err) {
         console.log('! document creation: ' + err);
+        if (verbose) {
+            console.log('! error status: ' + err.response.status);
+            console.log(util.inspect(err.response, {depth: 8, colors: true}));
+        }
     });
 }).catch(function(err) {
     console.log('! fetch parent folder:' + err);
